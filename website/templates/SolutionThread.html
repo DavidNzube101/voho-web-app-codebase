@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ Assignment['name'] }} | Voho </title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-styles.css') }} ">
+</head>
+<body>
+	{% if Assignment != "" %}	
+		<div class="grid-container">
+			<div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+				<a href="/assignment/thread/{{ Assignment['id'] }}">Back</a>
+				<h1 class="screen-header-text">{{ DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['first_name'] }}'s Solution</h1>
+				<a href="/dashboard/2">Create +</a>
+			</div>
+		</div>
+		<div class="thread">
+			<div class="assignment-thread" style="flex-direction: column;">
+				
+				<div style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+					<div class="assignment-thread-image">
+				        {% if ".png" in Assignment['image_name'] or ".jpg" in Assignment['image_name'] or ".webp" in Assignment['image_name'] or ".jpeg" in Assignment['image_name'] or ".PNG" in Assignment['image_name'] or ".JPG" in Assignment['image_name'] or ".WEBP" in Assignment['image_name'] or ".JPEG" in Assignment['image_name'] or "APRO-Image" == Assignment['image_name'] or "blob" == Solution['image_name'] %}
+					        <div class="grid-container">
+				    	        {% if Assignment['image_raw'] == "" %}
+				    				<img src="{{ url_for('static', filename='media/logo-default.png') }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+				    			{% else %}
+				    				<img src="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+				    			{% endif %}
+					        </div>
+				        {% else %}
+				        	<a href="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" download="{{ Assignment['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+				        		<button class="standard-button" style="width: fit-content;">Download File</button>
+				        	</a>
+				        {% endif %}
+					</div>
+					<div>
+						<p>&nbsp;</p>
+						<p>&nbsp;</p>
+					</div>
+					<div onclick="goToRoute('/assignment/thread/{{ Assignment['id'] }}', ['GET', {}])" class="assignment-thread-content">
+						<h3>{{ Assignment['name'] }}</h3>
+						<p>{{ Assignment['level'] }} • {{ Assignment['subject'] }} • {{ Assignment['visibility'] }} </p>
+						{% if DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['first_name'] == CUser['first_name'] %}
+							<span style="color: gray;"><a href="/dashboard/3">You</a> • {{ DTK.clean_date(Assignment['datestamp']) }}</span>
+						{% else %}
+							<span style="color: gray;"><a href="/profile/{{ Assignment['reg_number'] }}">{{ DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['first_name'] }} {{ DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['last_name'] }} </a> • {{ DTK.clean_date(Assignment['datestamp']) }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<br>
+				<hr style="width: 80%;">
+				<br>
+				<div class="grid-container">
+			        {% if ".png" in Assignment['image_name'] or ".jpg" in Assignment['image_name'] or ".webp" in Assignment['image_name'] or ".jpeg" in Assignment['image_name'] or ".PNG" in Assignment['image_name'] or ".JPG" in Assignment['image_name'] or ".WEBP" in Assignment['image_name'] or ".JPEG" in Assignment['image_name'] or "APRO-Image" == Assignment['image_name'] or "blob" == Solution['image_name'] %}
+				        <div class="grid-container">
+			    	        {% if Assignment['image_raw'] == "" %}
+			    				<img src="{{ url_for('static', filename='media/logo-default.png') }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+			    			{% else %}
+			    				<img src="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+			    			{% endif %}
+				        </div>
+			        {% else %}
+			        	<a href="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" download="{{ Assignment['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+			        		<button class="standard-button" style="width: fit-content;">Download File</button>
+			        	</a>
+			        {% endif %}
+				</div>
+				<div style="width: 100%;">
+					<p align="left">{{  ShortenText(Assignment['description'], 5)  }}</p>
+				</div>
+			</div>
+			{% if Solutions %}
+				<br>
+				<div class="grid-container">
+					<p class="status-text" style="display: none;"></p>
+				</div>
+				{% for Solution in Solutions %}
+					<div class="solution-thread" style="flex-direction: column;">
+						
+						<div style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+							<div class="solution-thread-image" style="display: grid; place-items: center; border-right: 2px solid #00a8f3;">
+			              		<div style="display: flex; align-items: center; flex-direction: row;">
+			              			<img src="{{ url_for('static', filename='media/icons/myicon-check.png') }}" style="height: 40px; width: 40px;" onclick="submitReview('good')">
+			              			&nbsp;
+			              			&nbsp;
+			              			<span>{{ GetReviewCount(Solution['id'])[0] }} </span>
+			              		</div>
+			              		<br>
+			              		<div style="display: flex; align-items: center; flex-direction: row;">
+			              			<img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 40px; width: 40px;" onclick="submitReview('bad')">
+			              			&nbsp;
+			              			&nbsp;
+			              			<span>{{ GetReviewCount(Solution['id'])[1] }} </span>
+			              		</div>
+			              		<script type="text/javascript">
+			              			function submitReview (what) {
+			              				reviewFormData = new FormData()
+			              				reviewFormData.append('what', what)
+			              				reviewFormData.append('solution_id', "{{ Solution['id'] }}")
+			              				fetch('/add-review', {
+			              					method: 'POST',
+			              					body: reviewFormData
+			              				})
+			              				.then(response => response.text())
+										.then((data) => {
+											if (data == "Reviewed already"){
+												showStatusText("flex", "You've already given a review.", "warning")
+												setTimeout(()=>{
+													hideStatusText()
+												} , 3000)
+											} if (data == "Reviewed yourself"){
+												showStatusText("flex", "You can't review your own solution.", "warning")
+												setTimeout(()=>{
+													hideStatusText()
+												} , 3000)
+											} if (data == "Success") {
+												showStatusText("flex", "Review Added", "success")
+												setTimeout(()=>{
+													hideStatusText()
+													location.reload()
+												} , 3000)
+											}
+										})
+			              			}
+			              		</script>
+							</div>
+							<div>
+								<p>&nbsp;</p>
+								<p>&nbsp;</p>
+							</div>
+							<div onclick="goToRoute('/assignment/thread/7/solution/{{ Solution['id'] }}', ['GET', {}])" class="solution-thread-content">
+								<h3>{{  ShortenText(Solution['content'], 5)  }}</h3>
+								{% if ".png" in Solution['image_name'] or ".jpg" in Solution['image_name'] or ".webp" in Solution['image_name'] or ".jpeg" in Solution['image_name'] or ".PNG" in Solution['image_name'] or ".JPG" in Solution['image_name'] or ".WEBP" in Solution['image_name'] or ".JPEG" in Solution['image_name'] or "blob" == Solution['image_name'] %}
+									<a><small>Media Attached</small></a>
+								{% elif "APRO-Image" == Solution['image_name'] %}
+									<a><small>Media Not Attached</small></a>
+								{% else %}
+									<a><small>Media Not Attached (Download available)</small></a>
+								{% endif %}
+								<br>
+								{% if DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['first_name'] != CUser['first_name'] %}
+									<a href="/profile/{{ Solution['provider'] }}">{{ DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['first_name'] }} {{ DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['last_name'] }}</a>
+								{% else %}
+									<a href="/dashboard/3">You</a>
+								{% endif %}
+								•&nbsp;<span style="color: gray;">{{ DTK.clean_date(Solution['datestamp']) }}</span>
+							</div>
+						</div>
+
+						<div style="width: 100%;">
+							<br>
+							<hr style="width: 90%;">
+							<br>
+					        {% if ".png" in Solution['image_name'] or ".jpg" in Solution['image_name'] or ".webp" in Solution['image_name'] or ".jpeg" in Solution['image_name'] or ".PNG" in Solution['image_name'] or ".JPG" in Solution['image_name'] or ".WEBP" in Solution['image_name'] or ".JPEG" in Solution['image_name'] or "APRO-Image" == Solution['image_name'] or "blob" == Solution['image_name'] %}
+						        <div class="grid-container">
+					    	        {% if Solution['image_raw'] == "" %}
+					    				<!-- <img src="{{ url_for('static', filename='media/logo-default.png') }}" style="width: 90%; object-fit: contain; border-radius: 20px;"> -->
+					    				<!-- <p></p> -->
+					    			{% else %}
+					    				<img src="data:{{ getMIME( Solution['image_raw'] ) }};base64,{{ Solution['image_raw'] }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+					    			{% endif %}
+						        </div>
+					        {% else %}
+					        	<a href="data:{{ getMIME( Solution['image_raw'] ) }};base64,{{ Solution['image_raw'] }}" download="{{ Solution['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+					        		<button class="standard-button" style="width: fit-content;">Download File</button>
+					        	</a>
+					        {% endif %}
+							<p>{{ Solution['content'] }}</p>
+						</div>
+						
+					</div>
+				{% endfor %}
+			{% else %}
+				<br>
+				<br>
+				<br>
+				<br>
+				<p align="center" style="color: grey;">Solution not avaibale anymore.</p>
+				<br>
+			{% endif %}
+
+		</div>
+
+	{% else %}
+		<style type="text/css">
+			#view-assignment-screen{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+			}
+		</style>
+		<p align="center">Nothing here!</p>
+	{% endif %}
+
+
+
+<script src="{{ url_for('static', filename='js/WRLDForm.js') }}"></script>
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+
+</body>
+</html>

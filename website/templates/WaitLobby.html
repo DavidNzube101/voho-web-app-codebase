@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Waitlist | Voho</title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-styles.css') }} ">
+	<style type="text/css">
+		.board{
+			background: white;
+			height: 80vh;
+			overflow-y: auto;
+			overflow-x: hidden;
+			/*display: grid;
+			place-items: center;*/
+			width: 96%;
+			border-radius: 20px;
+		}
+		#socials-corner{
+			width: 100%;
+		}
+		#socials-corner a{
+			display: flex;
+			background: rgba(0, 0, 0, 0.1);
+			padding: 10px;
+			margin: 10px;
+			color: black;
+			border-radius: 10px;
+			width: 100%;
+			align-items: center;
+			justify-content: space-around;
+		}
+		#socials-corner a img{
+			height: 30px;
+			width: 30px;
+		}
+		#socials-corner a p{
+			font-size: 13px;
+		}
+	</style>
+</head>
+<body style="background: #000000; display: flex; font-family: 'Segoe UI'; align-items: center; justify-content: center; height: 100vh;" bgcolor="#000000">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	  {% for category, message in messages %}
+	    {% if category[0] == 'EOC' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% elif category[0] == 'TAL' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% elif category[0] == 'SUC' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-check.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% else %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-info.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% endif %}
+	  {% endfor %}
+	{% endif %}
+	{% endwith %}
+	<script type="text/javascript">
+		const modal_flash = document.querySelector('.modal-flash');
+		try{
+		    const closeModalBtn_flash = document.getElementById('closeModalBtn-flash');
+
+		    // Close the modal
+		    closeModalBtn_flash.addEventListener('click', () => {
+		        modal_flash.style.display = 'none';
+		    });
+		} catch (error) {
+		    console.log('error')
+		}
+
+
+		// Close the modal if the user clicks outside the modal content
+		window.addEventListener('click', (event) => {
+		    if (event.target === modal_flash) {
+		        modal_flash.style.display = 'none';
+		    }
+		});
+	</script>
+	
+
+	<main class="board">
+		<div class="grid-container">
+			<br>
+			<div class="flex-container">
+				<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="height: 120px; width: 120px;">
+				<img src="{{ url_for('static', filename='media/icons/myicon-clock.png') }}" style="height: 120px; width: 120px;">
+			</div>
+		</div>
+		<div class="grid-container">
+			<style type="text/css">
+				.seconds_{{ CUser['id'] }}, .hour_{{ CUser['id'] }}, .minute_{{ CUser['id'] }}{
+				/*	padding: 10px;*/
+					margin-left: 10px;
+					margin-right: 10px;
+					font-size: 50px;
+					font-weight: 900;
+					transform: scale(1.15);
+					font-weight: bolder;
+					font-family: 'Segoe UI';
+				}
+			</style>
+			<div class="time_counter flex-container">
+				<p class="hour_{{ CUser['id'] }}">00</p>
+				:
+				<p class="minute_{{ CUser['id'] }}">00</p>
+				:
+				<p class="seconds_{{ CUser['id'] }}">00</p>
+			</div>
+			
+		</div>
+		<div class="grid-container">
+			<small style="width: 80%;">Once the timer has counted down, you'll be able to access <b>Voho</b>.<br>Meanwhile you can get to know more about <b>Voho</b> through out socials.</small>
+			<button class="standard-button" id="dummy-button" disabled style="opacity: 0.4; cursor: not-allowed;">Start Voho</button>
+			<button class="standard-button" id="real-button" onclick="goToRoute('/leave-lobby', ['GET', {}])" style="display: none;">Start Voho</button>
+		</div>
+		<br>
+		<div class="flex-container" id="socials-corner">
+			<a href="https://www.whatsapp.com/channel/0029Vam2CMZ3AzNIv2bu4o2M">
+				<img src="{{ url_for('static', filename='media/icons/whatsApp.png') }}">
+				<p>WhatsApp</p>
+			</a>
+			<a href="https://www.x.com/voho__ng">
+				<img src="{{ url_for('static', filename='media/icons/twitter.png') }}">
+				<p>Twitter(X)</p>
+			</a>
+			<a href="https://www.instagram.com/@voho__ng">
+				<img src="{{ url_for('static', filename='media/icons/icons8-instagram-48.png') }}">
+				<p>Instagram</p>
+			</a>
+		</div>
+		<br>
+		<div class="grid-container">
+			<p align="center" style="color: grey;">Contact the <a href="https://www.wa.me/2349131824725">Developer &UpperRightArrow;</a></p>
+		</div>
+	</main>
+
+
+
+
+<script type="text/javascript">
+	let countDownTimer_{{ CUser['id'] }} = (h, m, s) => {
+		let timer_{{ CUser['id'] }} = setInterval(() => {
+			if (s > 0) {
+				s--
+			} else if (m > 0) {
+				m--
+				s = 59
+			} else if (h > 0) {
+				h--
+				m = 59
+			} else {
+				clearInterval(timer_{{ CUser['id'] }})
+				console.log("Time elapsed")
+				document.querySelector("#dummy-button").style.display = "none"
+				document.querySelector("#real-button").style.display = "block"
+
+  				// reviewFormData = new FormData()
+  				// reviewFormData.append('what', what)
+  				// fetch('/add-review', {
+  				// 	method: 'POST',
+  				// 	body: reviewFormData
+  				// })
+  				// .then(response => response.text())
+				// .then((data) => {
+				// 	if (data == "Reviewed already"){
+				// 		showStatusText("flex", "You've already given a review.", "warning")
+				// 		setTimeout(()=>{
+				// 			hideStatusText()
+				// 		} , 3000)
+				// 	} if (data == "Reviewed yourself"){
+				// 		showStatusText("flex", "You can't review your own solution.", "warning")
+				// 		setTimeout(()=>{
+				// 			hideStatusText()
+				// 		} , 3000)
+				// 	} if (data == "Success") {
+				// 		showStatusText("flex", "Review Added", "success")
+				// 		setTimeout(()=>{
+				// 			hideStatusText()
+				// 			location.reload()
+				// 		} , 3000)
+				// 	}
+				// })
+			}
+
+			let hString_{{ CUser['id'] }} = h.toString().padStart(2, "0")
+			let mString_{{ CUser['id'] }} = m.toString().padStart(2, "0")
+			let sString_{{ CUser['id'] }} = s.toString().padStart(2, "0")
+			// console.log(`${hString_{{ CUser['id'] }}}:${mString_{{ CUser['id'] }}}:${sString_{{ CUser['id'] }}}`)
+			document.querySelector(".hour_{{ CUser['id'] }}").innerHTML = hString_{{ CUser['id'] }}
+			document.querySelector(".minute_{{ CUser['id'] }}").innerHTML = mString_{{ CUser['id'] }}
+			document.querySelector(".seconds_{{ CUser['id'] }}").innerHTML = sString_{{ CUser['id'] }}
+		}, 1000)
+	}
+
+	// countDownTimer_{{ CUser['id'] }}({{ TimeDifference("00:00", "00:01:00")[0] }}, {{ TimeDifference("00:00", "00:01:00")[1] }}, {{ TimeDifference("00:00", "00:01:00")[2] }})
+	countDownTimer_{{ CUser['id'] }}(48, 12, 10)
+</script>
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<title>Onboarding | Voho</title>
+	<style type="text/css">
+		body{
+			display: flex;
+			font-family: "Segoe UI";
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+		}
+		.board{
+			background: white;
+			height: 600px;
+			overflow-y: auto;
+			overflow-x: hidden;
+			/*display: grid;
+			place-items: center;*/
+			width: 96%;
+			border-radius: 20px;
+		}
+		form input, form select{
+			background: #e6e6e6;
+			padding: 20px;
+			border-radius: 10px;
+			outline: none;
+			border: 0;
+			margin: 10px;
+			width: 80%;
+		}
+		form button{
+			width: 80%;
+			margin: 10px;
+			outline: none;
+			border: 0;
+			background: #000000;
+			color: white;
+			font-weight: 700;
+			padding: 20px;
+			border-radius: 10px;
+		}
+		.status-text{
+			width: 80%;
+			border-radius: 10px;
+			color: red;
+			background: #ff00002e;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+
+		}
+		a{
+			color: #00cc17;
+			text-decoration: none;
+		}
+	</style>
+</head>
+<body bgcolor="#000000">
+	<div class="board">
+		<form id="signup-form" action="/signup" method="POST">
+			<style type="text/css">
+				@keyframes fillBar{
+					{% for num in num_list %}
+						{{ num }}%{
+							width: {{ num }}%;
+						}
+					{% endfor %}
+				}
+				.container-loader{
+					position: relative;
+				}
+				.container-content{
+					opacity: 0.4;
+				}
+				.loader-asset{
+					display: flex; 
+					align-items: center; 
+					flex-direction: column;
+					width: 90%; 
+					font-weight: bolder; 
+					position: absolute; 
+					top: 50%; 
+					left: 50%; 
+					transform: translate(-50%, -50%);
+				}
+				.loader-bar-container{
+					height: 7px;
+					border-radius: 10pc;
+					overflow-x: auto;
+					overflow-y: hidden;
+					width: 60%;
+					background: #b2b2b2;
+				}
+				.loader-bar-substance{
+					height: 7px;
+					border-radius: 10pc;
+					width: 10%;
+					background: #000000;
+					animation: fillBar 2s infinite linear;
+				}
+
+			</style>
+
+			<div class="container-loader">
+				<div class="container-content" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+					
+					<div style="width: 100%; display: grid; place-items: center;">
+						<img src="{{ url_for('static', filename='media/icons/defAccount.png') }}" style="height: 110px; width: 110px; margin-top: 50px;">
+					</div>
+					<br>
+					{% if status[0] != '' %}
+						<p class="status-text">{{ status[0] }}</p>
+					{% else %}
+						<p class="status-text" style="display: none;">{{ status[0] }}</p>
+					{% endif %}
+					<input type="text" name="first_name" placeholder="Your First Name" autocomplete="true" required>
+					
+					<input type="text" name="last_name" placeholder="Your Last Name" autocomplete="true" required>
+					
+					<input type="number" name="reg_number" placeholder="Your Reg Number" autocomplete="true" required>
+
+					<select name="faculty" required id="faculty">
+						<option>Select a Faculty</option>
+						<option value="SAAT">School of Agriculture and Agricultural Technology (SAAT) </option>
+						<option value="SBMS">School of Basic Medical Science (SBMS) </option>
+						<option value="SOBS">School of Biological Science (SOBS) </option>
+						<option value="SEET">School of Engineering and Engineering Technology (SEET) </option>
+						<option value="SESET">School of Electrical Systems and Engineering Technology (SESET) </option>
+						<option value="SOHT">School of Health Technology (SOHT) </option>
+						<option value="SICT">School of Information and Communication Technology (SICT) </option>
+						<option value="SLIT">School of Logistics and Innovation Technology (SLIT) </option>
+						<option value="SOPS">School of Physical Science (SOPS) </option>
+						<option value="SOES">School of Environmental Sciences (SOES) </option>
+						<option value="CMHS">College of Medicine and Health Sciences (CMHS) </option>
+						<option value="SMAT">School of Management Technology (SMAT) </option>
+					</select>
+
+					<select name="department" required id="department">
+						<option>Select a Department</option>
+						<optgroup label="School of Agriculture and Agricultural Technology (SAAT)">
+							<option>Agricultural Economics</option>
+							<option>Agricultural Extension</option>
+							<option>Agriculture</option>
+							<option>Animal Science and Technology</option>
+							<option>Crop Science and Technology</option>
+							<option>Fisheries and Aquaculture</option>
+							<option>Forestry and Wildlife Technology</option>
+							<option>Soil Science and Technology</option>
+						</optgroup>
+						<optgroup label="School of Basic Medical Science (SBMS)">
+							<option>Human Anatomy</option>
+							<option>Human Physiology</option>
+						</optgroup>
+						<optgroup label="School of Biological Science (SOBS)">
+							<option>Biochemistry</option>
+							<option>Biology</option>
+							<option>Biotechnology</option>
+							<option>Microbiology</option>
+						</optgroup>
+						<optgroup label="School of Engineering and Engineering Technology (SEET)">
+							<option>Agricultural and Bio-Resources Engineering</option>
+							<option>Biomedical Engineering</option>
+							<option>Chemical Engineering</option>
+							<option>Civil Engineering</option>
+							<option>Food Science and Technology</option>
+							<option>Material and Metallurgical Engineering</option>
+							<option>Mechanical Engineering</option>
+							<option>Mechatronics Engineering</option>
+							<option>Petroleum Engineering</option>
+							<option>Polymer and Textile Engineering</option>
+						</optgroup>
+						<optgroup label="School of Electrical Systems and Engineering Technology (SESET)">
+							<option>Computer Engineering</option>
+							<option>Electrical Engineering</option>
+							<option>Electrical/Electronics Engineering</option>
+							<option>Electronics Engineering</option>
+							<option>Telecommunication Engineering</option>
+						</optgroup>
+						<optgroup label="School of Health Technology (SOHT)">
+							<option>Dental Technology</option>
+							<option>Environmental Health Science</option>
+							<option>Optometry</option>
+							<option>Prosthesis and Orthopaedic Technology</option>
+							<option>Public Health Technology</option>
+							<option>Radiography</option>
+							<option>Science Laboratory Technology</option>
+						</optgroup>
+						<optgroup label="School of Information and Communication Technology (SICT)">
+							<option>Computer Science</option>
+							<option>Information Technology</option>
+							<option>Software Engineering</option>
+							<option>Cyber Security</option>
+						</optgroup>
+						<optgroup label="School of Logistics and Innovation Technology (SLIT)">
+							<option>Logistics and Transport Technology</option>
+							<option>Supply Chain Management</option>
+							<option>Project Management Technology</option>
+							<option>Entrepreneurship and Innovation</option>
+						</optgroup>
+						<optgroup label="School of Physical Science (SOPS)">
+							<option>Chemistry</option>
+							<option>Mathematics</option>
+							<option>Physics</option>
+						</optgroup>
+						<optgroup label="School of Environmental Sciences (SOES)">
+							<option>Architecture</option>
+							<option>Building Technology</option>
+							<option>Environmental Management</option>
+							<option>Quantity Surveying</option>
+							<option>Surveying and Geoinformatics</option>
+							<option>Urban and Regional Planning</option>
+						</optgroup>
+						<optgroup label="College of Medicine and Health Sciences (CMHS)">
+							<option>Medicine and Surgery</option>
+						</optgroup>
+						<optgroup label="School of Management Technology (SMAT)">
+							<option>History and International Studies</option>
+						</optgroup>
+					</select>
+
+					<select name="level" required id="level">
+						<option value="100">100 Level</option>
+						<option value="200">200 Level</option>
+						<option value="300">300 Level</option>
+						<option value="400">400 Level</option>
+						<option value="500">500 Level</option>
+					</select>
+
+					<input type="email" name="email" placeholder="Your Email" required>
+					<input type="password" name="password1" placeholder="Your Password" required>
+					<input type="password" name="password2" placeholder="Confirm Password" autocomplete="true" required>
+					<button type="button" onclick="submitForm('signup-form', 6000)">Register</button>
+					<p>or <a href="/login">login</a> if you already have an account.</p>
+
+				</div>
+
+				<div class="loader-asset">
+					<img src="{{ url_for('static', filename='media/logo-medium.png') }}">
+					<div class="loader-bar-container">
+						<div class="loader-bar-substance"></div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+<script src="{{ url_for('static', filename='js/WRLDLoader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/WRLDForm.js') }}"></script>
+</body>
+</html>

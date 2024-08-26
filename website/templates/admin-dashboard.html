@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Admin Dashboard | Voho</title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-styles.css') }} ">
+</head>
+<body>
+
+
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+	  {% for category, message in messages %}
+	    {% if category[0] == 'EOC' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% elif category[0] == 'TAL' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% elif category[0] == 'SUC' %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-check.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% else %}
+	      <div id="modal" class="modal-flash">
+	          <div class="modal-content-flash" style=" color: black;">
+		            <div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+		              <span class="close-flash" id="closeModalBtn-flash">&times;</span>
+		              <img src="{{ url_for('static', filename='media/icons/myicon-info.png') }}" style="height: 60px; width: 60px;">
+		              <div>
+		              	<h2 align="left" style="color: #000">{{ category[1] }}</h2>
+		              	<p align="left">{{ message }}</p>
+		              </div>
+		          	</div>
+		          	<h1>&nbsp;</h1>
+	          </div>
+	      </div>
+	    {% endif %}
+	  {% endfor %}
+	{% endif %}
+	{% endwith %}
+	<script type="text/javascript">
+		const modal_flash = document.querySelector('.modal-flash');
+		try{
+		    const closeModalBtn_flash = document.getElementById('closeModalBtn-flash');
+
+		    // Close the modal
+		    closeModalBtn_flash.addEventListener('click', () => {
+		        modal_flash.style.display = 'none';
+		    });
+		} catch (error) {
+		    console.log('error')
+		}
+
+
+		// Close the modal if the user clicks outside the modal content
+		window.addEventListener('click', (event) => {
+		    if (event.target === modal_flash) {
+		        modal_flash.style.display = 'none';
+		    }
+		});
+	</script>
+
+	<main>
+		<section class="screen active-screen" id="home-screen">
+			<div class="grid-container">
+				<img src="{{ url_for('static', filename='media/logo-mini.png') }}">
+			</div>
+			<div class="grid-container">
+				<form action="/search" method="POST" class="flex-container">
+					{% if SearchInput == "" %}
+						<input type="text" name="search_input" id="search_input" style="width: 80%;" placeholder="Search Assignment" class="standard-input">
+					{% else %}
+						<input type="text" name="search_input" id="search_input" style="width: 80%;" class="standard-input" value="{{ SearchInput }}">
+					{% endif %}
+					<button class="standard-button" onclick="searchItem()" style="width: 20%; height: 50px; display: flex; align-items: center; justify-content: center;">
+						<img src="{{ url_for('static', filename='media/icons/search-icon.png') }}" style="height: 30px; width: 30px;">
+					</button>
+					<script type="text/javascript">
+						function searchItem() {
+							const searchInput = document.querySelector("#search_input").value
+							let result = {}
+
+							console.log(`Search: ${searchInput}\nResult: ${result}`)
+						}
+					</script>
+				</form>
+				<div class="assignment-container-filters" style="padding: 0;">
+					{% for tab in DashboardTabs %}
+						{% if ActiveDSH_Tab == tab %}
+							<div onclick="goToRoute('/dashboard/filter/{{ ActiveDSH_Tab }}', ['GET', {}])" class="filters active-filter">{{ ActiveDSH_Tab }}</div>
+						{% else %}
+							<div onclick="goToRoute('/dashboard/filter/{{ tab }}', ['GET', {}])" class="filters">{{ tab }}</div>
+						{% endif %}
+					{% endfor %}
+				</div>
+				{{ "NAL" if NormalAssignmentList != NoneType else "no" }}
+				{{ "FAL" if FilterAssignmentList != NoneType else "no" }}
+				{{ "SR" if SearchResults != NoneType else "no" }}
+				{% if NormalAssignmentList == NoneType and FilterAssignmentList == NoneType and SearchResults == NoneType %}
+					<div class="grid-container">
+						<p align="center" style="color: grey;">Something went wrong while fetching results.<br><a href="/dashboard">Refresh</a> or try again later.</p>
+					</div>
+				{% elif (NormalAssignmentList == [] or NormalAssignmentList != []) and NormalAssignmentList != NoneType %}
+					<div class="grid-container" id="filter_results">
+						{% if NormalAssignmentList != [] %}
+							{% for AnAssignment in NormalAssignmentList %}
+								<div class="assignment-card-dashboard">
+									<img onclick="goToRoute('/profile/{{ AnAssignment['reg_number'] }}', ['GET', {}])" src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'reg_number', AnAssignment['reg_number'])['profile_picture']) }}" style="aspect-ratio: 1/1; width: 50px; border-radius: 10pc;">
+									<div style="margin-left: 20px; width: 100%;" onclick="goToRoute('/assignment/thread/{{ AnAssignment['id'] }}', ['GET', {}])">
+										<div>
+											<p><b>{{ AnAssignment['name'] }}</b> • <small style="color: grey;">{{ DTK.clean_date(AnAssignment['datestamp']) }}</small></p>
+											{% if DBORM('get_all', 'SavedAssignmentAPRO', 'assignment_id', AnAssignment['id'])['reg_number'] == CUser['reg_number'] %}	
+												<a href="/remove-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-unsave-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Unsave</small>
+												</a>
+											{% else %}
+												<a href="/add-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-save-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Save assignment</small>
+												</a>
+											{% endif %}
+											<p>{{ ShortenText(AnAssignment['description'], 7) }}</p>
+										</div>
+										<div style="width: 100%; display:flex; align-items: center; justify-content: space-around;">
+											<small>{{ AnAssignment['solution_count'] }} solutions</small>
+											<small>{{ AnAssignment['level'] }} Level</small>
+											<small>{{ AnAssignment['subject'] }}</small>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						{% else %}
+							<p align="center" style="color: grey;">None for this selection</p>
+						{% endif %}
+					</div>
+					<div class="grid-container">
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+					</div>
+				{% elif (FilterAssignmentList == [] or FilterAssignmentList != []) and FilterAssignmentList != NoneType %}
+					<div class="grid-container" id="filter_results">
+						{% if FilterAssignmentList != [] %}
+							{% for AnAssignment in FilterAssignmentList %}
+								<div class="assignment-card-dashboard">
+									<img onclick="goToRoute('/profile/{{ AnAssignment['reg_number'] }}', ['GET', {}])" src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'reg_number', AnAssignment['reg_number'])['profile_picture']) }}" style="aspect-ratio: 1/1; width: 50px; border-radius: 10pc;">
+									<div style="margin-left: 20px; width: 100%;" onclick="goToRoute('/assignment/thread/{{ AnAssignment['id'] }}', ['GET', {}])">
+										<div>
+											<p><b>{{ AnAssignment['name'] }}</b> • <small style="color: grey;">{{ DTK.clean_date(AnAssignment['datestamp']) }}</small></p>
+											{% if DBORM('get_all', 'SavedAssignmentAPRO', 'assignment_id', AnAssignment['id'])['reg_number'] == CUser['reg_number'] %}	
+												<a href="/remove-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-unsave-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Unsave</small>
+												</a>
+											{% else %}
+												<a href="/add-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-save-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Save assignment</small>
+												</a>
+											{% endif %}
+											<p>{{ ShortenText(AnAssignment['description'], 7) }}</p>
+										</div>
+										<div style="width: 100%; display:flex; align-items: center; justify-content: space-around;">
+											<small>{{ AnAssignment['solution_count'] }} solutions</small>
+											<small>{{ AnAssignment['level'] }} Level</small>
+											<small>{{ AnAssignment['subject'] }}</small>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						{% else %}
+							<p align="center" style="color: grey;">None for this selection</p>
+						{% endif %}
+					</div>
+					<div class="grid-container">
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+					</div>
+					
+				{% elif (SearchResults == [] or SearchResults != []) and SearchResults != NoneType %}
+					<div class="grid-container" id="search_results">
+						{% if SearchResults != [] %}
+							{% for AnAssignment in SearchResults %}
+								<div class="assignment-card-dashboard">
+									<img onclick="goToRoute('/profile/{{ AnAssignment['reg_number'] }}', ['GET', {}])" src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'reg_number', AnAssignment['reg_number'])['profile_picture']) }}" style="aspect-ratio: 1/1; width: 50px; border-radius: 10pc;">
+									<div style="margin-left: 20px; width: 100%;" onclick="goToRoute('/assignment/thread/{{ AnAssignment['id'] }}', ['GET', {}])">
+										<div>
+											<p><b>{{ AnAssignment['name'] }}</b> • <small style="color: grey;">{{ DTK.clean_date(AnAssignment['datestamp']) }}</small></p>
+											{% if DBORM('get_all', 'SavedAssignmentAPRO', 'assignment_id', AnAssignment['id'])['reg_number'] == CUser['reg_number'] %}	
+												<a href="/remove-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-unsave-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Unsave</small>
+												</a>
+											{% else %}
+												<a href="/add-saved-assignment/{{ AnAssignment['id'] }}" style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+													<img src="{{ url_for('static', filename='media/icons/icons8-save-24.png') }}" style="height: 30px; width: 30px;">
+													<small style="margin-left: 10px;">Save assignment</small>
+												</a>
+											{% endif %}
+											<p>{{ ShortenText(AnAssignment['description'], 7) }}</p>
+										</div>
+										<div style="width: 100%; display:flex; align-items: center; justify-content: space-around;">
+											<small>{{ AnAssignment['solution_count'] }} solutions</small>
+											<small>{{ AnAssignment['level'] }} Level</small>
+											<small>{{ AnAssignment['subject'] }}</small>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						{% else %}
+							<p align="center" style="color: grey; width: 80%;">Nothing matches your search query '{{ SearchInput }}'. Try <span style="color: #00cc17;" onclick="goToRoute('/search/query/{{ RandomSearchText()[0] }}', ['GET', {}])">{{ RandomSearchText()[0] }}</span> or <span style="color: #00cc17;" onclick="goToRoute('/search/query/{{ RandomSearchText()[1] }}', ['GET', {}])">{{ RandomSearchText()[1] }}</span>.</p>
+						{% endif %}
+					</div>
+					<div class="grid-container">
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+
+						<br>
+
+						<br>
+						<br>
+					</div>
+				
+				{% else %}
+
+					<div class="grid-container">
+						<p align="center" style="color: grey;">Something went wrong while fetching results.<br><a href="/dashboard">Refresh</a> or try again later.</p>
+					</div>
+
+				{% endif %}
+			</div>
+		</section>
+
+		<section class="screen" id="new-screen">
+			<h1 class="screen-header-text">&nbsp;&nbsp;&nbsp;</h1>
+
+			<form style="margin-left: 10px;" action="/create-assignment" method="POST" enctype="multipart/form-data">
+				<h1 align="left" style="font-size: 30px">Hey {{ CUser['first_name'] }}, <br>Create an assignment!</h1>
+				<br>
+				<div class="grid-container">
+					<input class="standard-input" type="file" name="image">
+					<input class="standard-input" type="text" name="name" placeholder="Assignment Name" required>
+					<textarea class="standard-input" name="description" placeholder="Assignment Description (Optional)"></textarea>
+					<input class="standard-input" type="text" name="subject" placeholder="Subject e.g. MTH101, CSC201" required>
+					<select class="standard-input" style="width: 90%;" name="visibility" required>
+						<option value="Public">Set Visibility (Default is Public)</option>
+						<option>Public</option>
+						<option>Private</option>
+					</select>
+					<hr style="width: 90%;">
+					<input class="standard-input" type="text" disabled value="{{ CUser['reg_number'] }}">
+					<input class="standard-input" type="text" disabled value="{{ CUser['level'] }} Level">
+					<button class="standard-button">Create +</button>
+				</div>
+			</form>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+		</section>
+
+		<section class="screen" id="profile-screen">
+			<div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+				<h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+				<h1 class="screen-header-text">Your Profile</h1>
+				<a href="/logout">Logout</a>
+			</div>
+			<div class="grid-container">
+				<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + CUser["profile_picture"]) }}" style="border-radius: 10pc; aspect-ratio: 1 / 1; width: 100px;">
+				<p style="display: flex; align-items: center; flex-direction: row;">{{ CUser['first_name'] }} {{ CUser['last_name'] }}&nbsp;  {% if CUser['tier'] == 'advanced' %} <img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 30px; width: 30px;"> {% elif CUser['tier'] == 'god' %} <img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 30px; width: 30px;"> {% endif %} </p>
+				<p style="background: #00000042; color: #000000; font-weight: 900; padding: 10px; border-radius: 20px; width: 100px; text-align: center;">{{ CUser['level'] }} </p>
+				<p align="center" style="color: #00cc17;">{{ CUser['reg_number'] }} </p>
+				<p align="center" style="width: 70%;">{{ CUser['department'] }}, {{ ReturnFaculty(CUser['faculty']) }} </p>
+				{% if ToInt(CUser['onboarding_stage']) < 2 %}
+					<div style="background: #e6e6e6; width: 90%; border-radius: 20px; padding: 10px;">
+						<h1 style="margin: 10px;">Finish Setting Up!</h1>
+						<p style="margin: 10px;">Hey {{ CUser['first_name'] }}, finish setting up your <b>Voho</b> account by adding your phone number. </p>
+						<a href="/finish-onboarding">
+							<button class="standard-button">Add Phone Number</button>
+						</a>
+					</div>
+				{% endif %}
+				<hr style="width: 100%;">
+				<h2 align="center">Your assignments</h2>
+				
+				<div class="assignment-container">
+					<div class="assignment-container-filters" style="padding: 0px;">
+						{% for tab in AssignmentFilterTabs %}
+							{% if ActiveAFT_Tab == tab %}
+								<div onclick="goToRoute('/filter/{{ ActiveAFT_Tab }}', ['GET', {}])" class="filters active-filter">{{ ActiveAFT_Tab }}</div>
+							{% else %}
+								<div onclick="goToRoute('/filter/{{ tab }}', ['GET', {}])" class="filters">{{ tab }}</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					{% if MyAssignments %}
+						<div class="assignment-container-content">
+							{% for MyAssignment in MyAssignments %}
+								<div class="assignment-card" style="position: relative;">
+							        
+									<h3>{{ MyAssignment['name'] }}</h3>
+									<span>{{ MyAssignment['subject'] }}</span>
+									<br>
+									<span>{{ DTK.clean_date(MyAssignment['datestamp']) }}</span>
+									{% if MyAssignment['solution_count'] != "0" %}
+										<button class="standard-button" onclick="goToRoute('/view-assignment/{{ MyAssignment['id'] }}', ['GET', {}])" style="position: absolute; bottom: 0; left: 0;">Add Solution</button>
+									{% else %}
+										<div style="position: absolute; bottom: 0; left: 0; display: flex; align-items: center; justify-content: space-around;">
+											<button class="inverted-button" onclick="goToRoute('/assignment/thread/{{ MyAssignment['id'] }}', ['GET', {}])" style="height: 20px; display: flex; align-items: center; justify-content: center;">
+												<img src="{{ url_for('static', filename='media/icons/new.png') }}" style="height: 25px; width: 25px;">
+											</button>
+											<button class="standard-button" onclick="goToRoute('/view-assignment/{{ MyAssignment['id'] }}', ['GET', {}])" style="height: 40px; display: flex; align-items: center; justify-content: center;">View</button>
+										</div>
+									{% endif %}
+								</div>
+							{% endfor %}
+						</div>
+					{% else %}
+						<br>
+						<br>
+						<span align="center" style="color: grey;">Nothing here!</span>
+						<span style="color: grey; display: flex; align-items: center; justify-content: center;">Click&nbsp;<img src="{{ url_for('static', filename='media/icons/new.png') }}" style="height: 30px; width: 30px;">&nbsp;to get started.</span>
+					{% endif %}
+					</div>
+				
+			</div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+		</section>
+
+		<section class="screen" id="view-assignment-screen">
+			{% if AssignmentToView != "" %}
+				<h1 class="screen-header-text">{{ AssignmentToView['name'] }}</h1>
+		        {% if ".png" in AssignmentToView['image_name'] or ".jpg" in AssignmentToView['image_name'] or ".webp" in AssignmentToView['image_name'] or ".jpeg" in AssignmentToView['image_name'] or ".PNG" in AssignmentToView['image_name'] or ".JPG" in AssignmentToView['image_name'] or ".WEBP" in AssignmentToView['image_name'] or ".JPEG" in AssignmentToView['image_name'] or "APRO-Image" == AssignmentToView['image_name'] %}
+        	        <div class="grid-container">
+	        	        {% if AssignmentToView['image_raw'] == "" %}
+	        				<img src="{{ url_for('static', filename='media/logo-default.png') }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+	        			{% else %}
+	        				<img src="data:{{ getMIME( AssignmentToView['image_raw'] ) }};base64,{{ AssignmentToView['image_raw'] }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+	        			{% endif %}
+        	        </div>
+		        {% else %}
+		        	<a href="data:{{ getMIME( AssignmentToView['image_raw'] ) }};base64,{{ AssignmentToView['image_raw'] }}" download="{{ AssignmentToView['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+		        		<button class="standard-button" style="width: fit-content;">Download File</button>
+		        	</a>
+		        {% endif %}
+		        <div style="margin-left: 20px;">
+		        	<p><b>Name:</b> {{ AssignmentToView['name'] }} </p>
+		        	<p><b>Description:</b> {{ AssignmentToView['description'] if AssignmentToView['description'] != "" else "No description" }} </p>
+		        	<p><b>Created: </b> {{ DTK.clean_date(AssignmentToView['datestamp']) }} by {{ AssignmentToView['timestamp'] }} </p>
+		        	{% if AssignmentToView['subject'] in ApprovedSubjectList %}
+		        		<p><b>Subject: </b> {{ AssignmentToView['subject'] }} • <a href="/search/query/{{ AssignmentToView['subject'] }}">View similar assignments</a></p>
+		        	{% else %}
+		        		<p><b>Subject: </b> {{ AssignmentToView['subject'] }} • <a href="/search/query/{{ AssignmentToView['subject'] }}">View similar assignments</a></p>
+		        	{% endif %}
+		        	<p><b>Level: </b> {{ AssignmentToView['level'] }} Level • <a href="/search/query/{{ AssignmentToView['level'] }}">View similar assignments</a></p>
+		        	{% if CUser['reg_number'] == AssignmentToView['reg_number'] %}	
+		        		<p>
+		        			<b>Visibility: </b> {{ AssignmentToView['visibility'] }} • <a href="/edit-assignment/visibility/{{ GetOppositeVisibility(AssignmentToView['visibility']) }}/{{ AssignmentToView['id'] }}">Make {{ GetOppositeVisibility(AssignmentToView['visibility']) }} </a>
+		        		</p>
+		        	{% else %}
+		        		<p>
+		        			<b>Visibility: </b> {{ AssignmentToView['visibility'] }}
+		        		</p>
+		        	{% endif%}
+		        	<div class="grid-container">
+		        		{% if CUser['reg_number'] == AssignmentToView['reg_number']  %}
+		        			{% if AssignmentToView['is_done'] == "no" %}
+		        				<p align="center" style="color: grey;">You haven't done this assignment.<br>Add a solution or hire someone to do so.</p>
+		        				<button class="standard-button" onclick="goToRoute('/assignment/thread/{{ AssignmentToView['id'] }}', ['GET', {}])">Add a solution</button>
+		        				<button class="inverted-button" onclick="goToRoute('/hire/{{ AssignmentToView['id'] }}', ['GET', {}])">Hire someone</button>
+		        			{% else %}
+		        				<p align="center" style="color: grey;">You have completed this assignment. View existing solutions, add new or hire someone to do so.</p>
+		        				<button class="standard-button" onclick="goToRoute('/assignment/thread/{{ AssignmentToView['id'] }}', ['GET', {}])">View solutions</button>
+		        				<button class="inverted-button" onclick="goToRoute('/assignment/thread/{{ AssignmentToView['id'] }}', ['GET', {}])">Add solution</button>
+		        				<button class="inverted-button" onclick="goToRoute('/hire/{{ AssignmentToView['id'] }}', ['GET', {}])">Hire someone</button>
+		        			{% endif %}
+		        			<button class="inverted-button" style="border: 2px solid red; color: red;" onclick="goToRoute('/delete-assignment/{{ AssignmentToView['id'] }}', ['GET', {}])">Delete Assignment</button>
+		        		{% else %}
+		        			<button class="standard-button" onclick="goToRoute('/assignment/thread/{{ AssignmentToView['id'] }}', ['GET', {}])">Add a solution</button>
+		        			<button class="inverted-button" onclick="goToRoute('/assignment/thread/{{ AssignmentToView['id'] }}', ['GET', {}])">View Solutions</button>
+		        		{% endif %}
+		        	</div>
+		        </div>
+
+			{% else %}
+				<style type="text/css">
+					#view-assignment-screen{
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						height: 100vh;
+					}
+				</style>
+				<p align="center">Nothing here!</p>
+			{% endif %}
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+		</section>
+
+		<section class="screen" id="hire-screen">
+			<h1 class="screen-header-text" align="center">Hire Someone</h1>
+			<div class="grid-container">
+				<br>
+				<br>
+				<img src="{{ url_for('static', filename='media/logo-hire.png') }}" style="width: 80%;">
+				<br>
+				<p align="center" style="color: grey;"><b>Voho Hire</b> coming soon.</p>
+				<div style="width: 100%;">
+					<ol>
+						<li>Hire someone to do/complete your assignments.</li>
+						<li>Standard rates set and regulated by Voho.</li>
+						<li>Jobs are regulated & monitored by Voho.</li>
+						<li>Support for dispute request & settlement.</li>
+						<li><a href="https://www.google.com/search?q=escrow&rlz=1C1KNTJ_enNG1083NG1083&oq=escrow&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQABiPAjIHCAIQABiPAtIBCTExNjMwajBqMagCALACAA&sourceid=chrome&ie=UTF-8" target="_blank">Escrow</a> based payment system.</li>
+					</ol>
+				</div>
+				{% if CUser['waitlist_apro_hire'] != "yes" %}
+					<button class="standard-button" onclick="submitWaitListForm()">Join Waitlist</button>
+					<script type="text/javascript">
+              			function submitWaitListForm () {
+              				reviewFormData = new FormData()
+              				reviewFormData.append('current_stage', "{{ CUser['onboarding_stage'] }}")
+              				reviewFormData.append('data', "yes")
+              				fetch('/onboarding', {
+              					method: 'POST',
+              					body: reviewFormData
+              				})
+              				location.reload()
+              			}
+					</script>
+					<button class="inverted-button" onclick="goToRoute('/dashboard', ['GET', {}])">Go Home</button>
+				{% else %}
+					<p align="center" style="color: grey;">Joined waitlist. Feature would roll out soon.<br>This feauture would be available to only <b>Voho Advanced</b> Users</p>
+					<button class="standard-button" onclick="goToRoute('/dashboard', ['GET', {}])">Go Home</button>
+				{% endif %}
+			</div>
+		</section>
+
+		<section class="screen" id="go-pro-screen">
+			<h1 class="screen-header-text">Voho Pro</h1>
+			<div class="grid-container">
+				<div class="plan-tier" style="background: linear-gradient(100deg, grey, rgba(0, 0, 0, 0.7)); color: white;">
+					<h1 style="font-size: 25px;">Voho Basic</h1>
+					<ol>
+						<li>Basic assignment sharing and sharing</li>
+						<li>Basic search functionality</li>
+						<li>Max limit of 20 assignments posts(incl. solutions)</li>
+					</ol>
+					<div class="grid-container">
+						<button class="standard-button" onclick="goToRoute('/dashboard', ['GET', {}])">Continue to dashboard</button>
+					</div>
+				</div>
+				<br>
+				<div class="plan-tier" style="background: linear-gradient(322deg, yellow, red); color: white;">
+					<h1 style="font-size: 25px;">Voho Pro</h1>
+					<ol>
+						<li>Unlimited number of assignment posts(incl. solutions)</li>
+						<li>Advanced search functionality</li>
+						<li>Priority customer support</li>
+						<li>Access to exclusive study materials<sup>1</sup></li>
+					</ol>
+					<div class="grid-container">
+						<button class="standard-button" style="width: 100%;" onclick="goToRoute('/dashboard', ['GET', {}])">Purchase at <b style="font-size: large;">NGN 250.00 /month</b></button>
+						<button class="standard-button" style="width: 100%;" onclick="goToRoute('/dashboard', ['GET', {}])">Purchase at <b style="font-size: large;">NGN 800.00 /semester</b></button>
+					</div>
+				</div>
+				<br>
+				<div class="plan-tier" style="background: linear-gradient(100deg, #0ea295, #790079); color: white;">
+					<h1 style="font-size: 25px;">Voho Advanced</h1>
+					<ol>
+						<li>All features of <b>Voho Pro</b></li>
+						<li>Priority access to new features</li>
+						<li>Become a Voho Agent<sup>2</sup></li>
+						<li>Verification Checkmark<sup>3</sup></li>
+						<li>LFX Past Questions<sup>4</sup></li>
+					</ol>
+					<div class="grid-container">
+						<button class="standard-button" style="width: 100%;" onclick="goToRoute('/dashboard', ['GET', {}])">Purchase at <b style="font-size: large;">NGN 400.00 /month</b></button>
+						<button class="standard-button" style="width: 100%;" onclick="goToRoute('/dashboard', ['GET', {}])">Purchase at <b style="font-size: large;">NGN 1,200.00 /semester</b></button>
+					</div>
+				</div>
+
+				<br>
+				<p align="left" style="color: grey; margin-left: 10px;"><sup>1. This feature provides Maven plan subscribers with access to a curated collection of high-quality study materials that are not available to users on <b>Voho Basic</b>.</sup></p>
+				<p align="left" style="color: grey; margin-left: 10px;"><sup>2. By purchasing <b>Voho Advanced</b>, you unlock this feature such as the Voho Agent. Becoming a Voho Agent makes you eligible to get hired by other Voho users to freelance on the platform.</sup></p>
+				<p align="left" style="color: grey; margin-left: 10px;"><sup>3. <b>Voho Advanced</b> subscription gets you an exclusive verification checkmark next to your name showing that you subscribed to Voho Advanced.</sup></p>
+				<p align="left" style="color: grey; margin-left: 10px;"><sup>4. Only current year LFX Past Questions would be available on the platform.</sup></p>
+
+			</div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+		</section>
+
+		<section class="screen" id="notification-screen">
+			<h1 class="screen-header-text">Notification</h1>
+
+			<div class="grid-container">
+				{% if UserNotifications %}
+					{% for Notification in UserNotifications %}
+						{% if Notification['status'] == "delivered" %}
+							{% if Notification['type'] == 'official' %}
+								<div class="notification-card" onclick="goToRoute('/open-notification/{{ Notification['id'] }}', ['GET', {}])" style="position: relative;">
+									<div>
+										<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+										<h2 align="left"><b>Voho Team</b>{% if Notification['broadcast'] == 'true' %} <span style="background: #00f10059; color: #007d00; border-radius: 10px; padding: 5px; font-size: 15px;">Broadcast</span> {% endif %}</h2>
+										<p align="left"><b>{{ Notification['title'] }}</b></p>
+										<p align="left">{{ ShortenText(Notification['content'], 5) }}<a>see more</a></p>
+									</div>
+									<div style="position: absolute; right: 20px; top: 20px; height: 20px; width: 20px; border-radius: 10pc; background: #00cc17;">
+										
+									</div>
+								</div>
+							{% else %}
+								<div class="notification-card" onclick="goToRoute('/open-notification/{{ Notification['id'] }}', ['GET', {}])" style="position: relative;">
+									<div>
+										<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'id', Notification['sender_id'])['profile_picture'] ) }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+										<p align="left"><b>{{ Notification['title'] }}</b></p>
+										<p align="left">{{ ShortenText(Notification['content'], 5) }}<a>see more</a></p>
+									</div>
+									<div style="position: absolute; right: 20px; top: 20px; height: 20px; width: 20px; border-radius: 10pc; background: #00cc17;">
+										
+									</div>
+								</div>
+							{% endif %}
+						{% else %}
+							{% if Notification['type'] == 'official' %}
+								<div class="notification-card" onclick="goToRoute('/open-notification/{{ Notification['id'] }}', ['GET', {}])">
+									<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+									<h2 align="left"><b>Voho Team</b>{% if Notification['broadcast'] == 'true' %} <span style="background: #00f10059; color: #007d00; border-radius: 10px; padding: 5px; font-size: 15px;">Broadcast</span> {% endif %}</h2>
+									<p align="left"><b>{{ Notification['title'] }}</b></p>
+									<p align="left">{{ ShortenText(Notification['content'], 5) }}<a>see more</a></p>
+								</div>
+							{% else %}
+								<div class="notification-card" onclick="goToRoute('/open-notification/{{ Notification['id'] }}', ['GET', {}])">
+									<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'id', Notification['sender_id'])['profile_picture'] ) }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+									<p align="left"><b>{{ Notification['title'] }}</b></p>
+									<p align="left">{{ ShortenText(Notification['content'], 5) }}<a>see more</a></p>
+								</div>
+							{% endif %}
+						{% endif %}
+					{% endfor %}
+					<p align="center" style="color: grey;">Notifications older than 14 days<br>would be automatically deleted.</p>
+				{% else %}
+					<div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+						<p align="center" style="color: grey;">You have no new notifications.</p>
+					</div>
+
+				{% endif %}
+				<br>
+				<br>
+				<br>
+				<br>
+				<br>
+			</div>
+		</section>
+
+		<section class="screen" id="view-notification-screen">
+			<div class="grid-container">
+				{% if TheNotification != "" %}
+					<div style="margin: 10px; display: flex; align-items: center; flex-direction: column;">
+						{% if TheNotification['type'] == 'official' %}
+							<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="height: 50px; width: 50px;">
+							<h2 align="left" style="width: 80%;"><b>Voho Team</b></h2>
+							<p align="left" style="width: 80%;"><b>{{ TheNotification['title'] }}</b></p>
+							<p align="left" style="width: 80%;">{{ TheNotification['content'] }}</p>
+							<div class="grid-container">
+								{% if TheNotification['data'] != "None" %}
+									{% if PythonEval(TheNotification['data'])[0] == 1 %}
+										<button class="standard-button" onclick="goToRoute('/dashboard/{{ PythonEval(TheNotification['data'])[1] }}', ['GET', {}])">Go Pro</button>
+									{% else %}
+										<!-- <button class="standard-button" onclick="goToRoute('/dashboard/7', ['GET', {}])"></button> -->
+									{% endif %}
+									<button class="inverted-button" onclick="goToRoute('/dashboard/7', ['GET', {}])">Back</button>
+									{% if TheNotification['broadcast'] != "true" %}
+										<button class="inverted-button" onclick="goToRoute('/delete-notification/{{ TheNotification['id'] }}', ['GET', {}])" style="color: red; border: 2px solid red;">Delete</button>
+									{% endif %}
+								{% else %}
+									<button class="standard-button" onclick="goToRoute('/dashboard/7', ['GET', {}])">Back</button>
+									{% if TheNotification['broadcast'] != "true" %}
+										<button class="inverted-button" onclick="goToRoute('/delete-notification/{{ TheNotification['id'] }}', ['GET', {}])" style="color: red; border: 2px solid red;">Delete</button>
+									{% endif %}
+								{% endif %}
+							</div>
+						{% else %}
+							{% if TheNotification['type'] == "answer_question" %}
+								<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'id', TheNotification['sender_id'])['profile_picture'] ) }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+								<p align="left" style="width: 80%;"><b>{{ TheNotification['title'] }}</b></p>
+								<p align="left" style="width: 80%;">{{ TheNotification['content'] }}</p>
+								<div class="grid-container">
+									<button class="standard-button" onclick="goToRoute('/assignment/thread/{{ TheNotification['data'] }}', ['GET', {}])">See question</button>
+									<button class="inverted-button" onclick="goToRoute('/dashboard/7', ['GET', {}])">Back</button>
+									<button class="inverted-button" onclick="goToRoute('/delete-notification/{{ TheNotification['id'] }}', ['GET', {}])" style="color: red; border: 2px solid red;">Delete</button>
+								</div>
+							{% else %}
+								<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + DBORM('get_all', 'UserAPRO', 'id', TheNotification['sender_id'])['profile_picture'] ) }}" style="border-radius: 10pc; height: 50px; width: 50px;">
+								<p align="left" style="width: 80%;"><b>{{ TheNotification['title'] }}</b></p>
+								<p align="left" style="width: 80%;">{{ TheNotification['content'] }}</p>
+								<div class="grid-container">
+									<button class="standard-button" onclick="goToRoute('/dashboard/7', ['GET', {}])">Back</button>
+									<button class="inverted-button" onclick="goToRoute('/delete-notification/{{ TheNotification['id'] }}', ['GET', {}])" style="color: red; border: 2px solid red;">Delete</button>
+								</div>
+							{% endif %}
+						{% endif %}
+						
+					</div>
+				{% else %}
+					<div style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+						<p align="center" style="color: grey;">Failed to load message. <a onclick="location.reload()">Refresh</a> or try again later.</p>
+					</div>
+				{% endif %}
+			</div>
+		</section>
+
+		<!-- Admin/Secret Screens -->
+		<section class="screen" id="broadcast-screen">
+			<h1 class="screen-header-text">Send a Broadcast</h1>
+			<form action="/add-broadcast" method="POST" class="grid-container">
+				<select name="profile" class="standard-input">
+					<option value="Voho">Choose profile to send as</option>
+					<option value="{{ CUser['reg_number'] }}">{{ CUser['first_name'] }} {{ CUser['last_name'] }}</option>
+					<option value="Voho">Voho</option>
+				</select>
+
+				<select name="data" class="standard-input">
+					<option value="">Choose Broadcast preset</option>
+					<option value="[1, 6]">Upgrade Voho plan</option>
+					<option value="">Other</option>
+				</select>
+
+				<input type="text" name="title" class="standard-input" placeholder="Message Title">
+				<textarea class="standard-input" name="content" placeholder="Message Content"></textarea>
+
+				<button class="standard-button">Broadcast message</button>
+			</form>
+			<hr>
+			<h1 align="center">Broadcast List(s)</h1>
+			<div class="grid-container">
+				{% if DBORM('find_all', 'NotificationAPRO', 'broadcast', 'true') != [] %}
+					{% for message in DBORM('find_all', 'NotificationAPRO', 'broadcast', 'true') %}
+						<div style="background: white; width: 90%; border-radius: 20px; padding: 10px; margin: 10px;">
+							<p><b>Name:</b> {{ message['title'] }} </p>
+							<p id="content-short-text-{{ message['id'] }}"><b>Content:</b> {{ ShortenText(message['content'], 5) }}...<a>See more</a></p>
+							<p id="content-long-text-{{ message['id'] }}" style="display: none;"><b>Content:</b> {{ message['content'] }} <a>See less</a></p>
+							<script type="text/javascript">
+								document.querySelector("#content-short-text-{{ message['id'] }}").addEventListener('click', ()=>{
+									document.querySelector("#content-short-text-{{ message['id'] }}").style.display = "none"
+									document.querySelector("#content-long-text-{{ message['id'] }}").style.display = "block"
+								})
+								document.querySelector("#content-long-text-{{ message['id'] }}").addEventListener('click', ()=>{
+									document.querySelector("#content-long-text-{{ message['id'] }}").style.display = "none"
+									document.querySelector("#content-short-text-{{ message['id'] }}").style.display = "block"
+								})
+							</script>
+							<p><b>Date:</b> {{ DTK.clean_date(message['datestamp']) }} </p>
+							<div class="flex-container">
+								<button class="standard-button" onclick="goToRoute('/open-broadcast/{{ message['id'] }}', ['GET', {}])">View</button>
+								<button class="inverted-button" onclick="goToRoute('/delete-broadcast/{{ message['id'] }}', ['GET', {}])" style="border: 2px solid red; color: red;">Delete</button>
+							</div>
+						</div>
+					{% endfor %}
+					<br>
+					<br>
+					<br>
+					<br>
+				{% else %}
+					<p align="center" style="color: grey;">You haven't any broadcasted messages.</p>
+				{% endif %}
+			</div>
+		</section>
+
+		<section class="screen" id="users-screen">
+			<h1 class="screen-header-text">User List</h1>
+			<div class="grid-container">
+
+				{% if UserList %}
+					<div style="background: #000000; color: white; padding: 10px; margin: 10px; border-radius: 20px; width: 90%;">
+						<p><b>Total Users:</b> {{ LengthFunc(UserList) }}</p>
+						<p><b style="color: #00cc17;">Total Subscribed Users:</b> {{ LengthFunc(UserList) - LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'subscripton_plan', 'None'))) }} </p>
+						<p><b>Total Basic Subscribers:</b> {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'subscripton_plan', 'basic'))) }} </p>
+						<p><b style="color: orange;">Total Pro Subscribers:</b> {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'subscripton_plan', 'pro'))) }} </p>
+						<p><b style="color: mediumpurple;">Total Advanced Subscribers:</b> {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'subscripton_plan', 'advanced'))) }} </p>
+						<p><b style="color: red;">Total Unsubscribed Users:</b> {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'subscripton_plan', 'None'))) }} </p>
+						<p><b>Users in Voho Waitlist</b>: {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'waitlist', 'not_decided'))) }}</p>
+						<p><b>Users in Voho Hire Waitlist</b>: {{ LengthFunc(RemoveAdmins(DBORM('find_all', 'UserAPRO', 'waitlist_apro_hire', 'no'))) }}</p>
+					</div>
+					{% for User in UserList %}
+						<div style="background: white; padding: 10px; margin: 10px; border-radius: 20px; width: 90%;">
+							<p><b>Name</b>: {{ User['first_name'] }} {{ User['last_name'] }}</p>
+							<p><b>Tier/Plan</b>: {{ User['tier'] }}</p>
+							<p><b>REG Number</b>: {{ User['reg_number'] }}</p>
+							<p><b>Subscription Plan</b>: {{ User['subscripton_plan'] }} </p>
+							<br>
+							<p>Visit <a href="/profile/{{ User['reg_number'] }}">User Profile</a></p>
+						</div>
+					{% endfor %}
+					<br>
+					<br>
+					<br>
+					<br>
+					<br>
+					<br>
+					<br>
+					<br>
+				{% else %}
+					<p align="center" style="color: grey;">No Users <a onclick="goToRoute('/admin-dashboard', ['GET', {}])">Refresh</a></p>
+				{% endif %}
+			</div>
+		</section>
+		<!-- <section class="screen" id="-screen">
+			
+		</section> -->
+	</main>
+
+	<nav>
+		<img src="{{ url_for('static', filename='media/icons/icons8-home-48.png') }}" id="home-tab" class="tab active-tab" onclick="goToScreen(this, 'home-screen', 'block')">
+		<img src="{{ url_for('static', filename='media/icons/icons8-plus-50.png') }}" id="new-tab" class="tab" onclick="goToScreen(this, 'new-screen', 'block')">
+		<img src="{{ url_for('static', filename='media/icons/new.png') }}" id="broadcast-tab" class="tab" onclick="goToScreen(this, 'broadcast-screen', 'block')">
+		<img src="{{ url_for('static', filename='media/icons/icons8-user-48.png') }}" id="users-tab" class="tab" onclick="goToScreen(this, 'users-screen', 'block')">
+		<div onclick="goToScreen(this, 'notification-screen', 'block')" id="notification-tab" class="tab" style="position: relative;">
+			<img src="{{ url_for('static', filename='media/icons/icons8-bell-24.png') }}">
+			{% if NotificationCount > 0 %}
+				<div style="position: absolute; top: -10px; left: 20px; aspect-ratio: 1/1; width: 5px; display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 10pc; background: #00cc17; color: white; height: 5px;">
+					{{ NotificationCount }}
+				</div>
+			{% endif %}
+		</div>
+		<div onclick="goToScreen(this, 'profile-screen', 'block')" id="profile-tab" class="tab">
+			<img src="{{ url_for('static', filename='media/assets/profile_pictures/' + CUser["profile_picture"]) }}">
+		</div>
+		<style type="text/css">
+			#notification-tab{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			#notification-tab img{
+				height: 40px;
+				width: 40px;
+			}
+		</style>
+		<!-- <img src="{{ url_for('static', filename='media/icons/') }}" id="-tab" class="tab"> -->
+	</nav>
+
+
+<script type="text/javascript">
+	current_screen = "{{ ScreenID }}"
+</script>
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+<script src="{{ url_for('static', filename='js/Screen_Manager.js') }}"></script>
+<script type="text/javascript">
+	loadScreen(current_screen)
+</script>
+</body>
+</html>

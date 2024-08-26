@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Voho - Get your assignments done!</title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }} ">
+</head>
+<body>
+
+	<div style="display: grid; place-items: center; width: 100%; height: 100vh;">
+		<div style="display: grid; place-items: center;">
+			<img src="{{ url_for('static', filename='media/logo-medium.png') }}">
+			<p style="font-size: 30px;"><span style="font-weight: 900;">Voho</span></p>
+			<p align="center">Student-centric academic<br>collaboration platform</p>
+		</div>
+
+		<div style="display: flex; align-items: center; justify-content: space-evenly; width: 100%">
+			<button onclick="goToRoute('/signup', ['GET', {}])" class="button-main button">Get started!</button>
+			<button onclick="goToRoute('/login', ['GET', {}])" class="button-secondary button">Login</button>
+		</div>
+
+		<div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+			
+			<div>
+				<p align="center">Mail me 
+					<a target="_blank" href="mailto:david.nzube.official22@gmail.com" style="color: black; text-decoration: none;">
+						<span style="display: flex; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 10px; align-items: center; justify-content: center;">
+							<img src="{{ url_for('static', filename='media/icons/mail.png') }}" style="height: 30px; width: 30px;">
+						</span>
+					</a>
+				</p>
+			</div>
+
+			<div>
+				<p align="center">Built by 
+					<a target="_blank" href="https://www.github.com/DavidNzube101" style="color: black; text-decoration: none;">
+						<span style="display: flex; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 10px; align-items: center; justify-content: space-between;">
+							<img src="{{ url_for('static', filename='media/icons/github.png') }}" style="height: 30px; width: 30px;">&nbsp;&nbsp;
+							<span style="font-weight: 600; font-family: monospace;">Skipp</span>
+						</span>
+					</a>
+				</p>
+			</div>
+
+			<div>
+				<p align="center">Chat me 
+					<a target="_blank" href="https://www.wa.me/2349131824725" style="color: black; text-decoration: none;">
+						<span style="display: flex; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 10px; align-items: center; justify-content: center;">
+							<img src="{{ url_for('static', filename='media/icons/whatsApp.png') }}" style="height: 30px; width: 30px;">
+						</span>
+					</a>
+				</p>
+			</div>
+
+		</div>
+	</div>
+
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+</body>
+</html>

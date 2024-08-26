@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-white-150.png') }}">
+	<title>Oops, something went wrong</title>
+	<style type="text/css">
+		body{
+			display: grid;
+			place-items: center;
+			height: 100vh;
+		}
+	</style>
+</head>
+<body>
+	<h1>Oops! Something went wrong.</h1>
+	{% if code == 404 %}
+		<p>Page not found!</p>
+	{% elif code == 500 %}
+		<p>An error has been encountered!</p>
+	{% endif %}
+</body>
+</html>

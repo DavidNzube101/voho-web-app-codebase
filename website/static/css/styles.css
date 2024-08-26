@@ -1,0 +1,20 @@
+body{
+	background: #dedcdc;
+	font-family: "Segoe UI";
+}
+.button{
+	background: #000000;
+	outline: none;
+	border: 0;
+	padding: 10px;
+	border-radius: 10px;
+	color: white;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+.button-secondary{
+	border: 2px solid #000000;
+	background: transparent;
+	color: #000000;
+	font-weight: 700;
+}

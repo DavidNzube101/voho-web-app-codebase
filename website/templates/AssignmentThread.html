@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ Assignment['name'] }} | Voho </title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-styles.css') }} ">
+	<script src="{{ url_for('static', filename='js/WRLDForm.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+</head>
+<body>
+	{% if Assignment != "" %}
+		<div class="grid-container">
+			<div style="display: flex; align-items: center; justify-content: space-around; width: 100%;">
+				<a href="/dashboard">Back</a>
+				<h1 class="screen-header-text">{{ DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['first_name'] }}'s Post</h1>
+				<a href="/dashboard/2">New +</a>
+			</div>
+		</div>
+		{% if Assignment['visibility'] == "Private" and Assignment['reg_number'] != CUser['reg_number'] %}
+			<div class="grid-container">
+				<p align="center" style="color: grey;">Assignment is Private!</p>
+				<p class="status-text" align="center" style="display: none;"></p>
+			</div>
+			<script type="text/javascript">
+				showStatusText("flex", "Redirecting you back...", "warning")
+				setTimeout(()=>{
+					window.location.pathname = '/profile/{{ Assignment['reg_number'] }}'
+				} , 3000)
+			</script>
+		{% else %}
+			<div class="thread">
+				<div class="assignment-thread">
+					<div class="assignment-thread-image">
+						<div id="modal-expand-image" class="modal">
+						    <div class="modal-content" style="display: grid; place-items: center; height: 400px; overflow-y: auto; overflow-x: hidden;">
+						        <span class="close-modal" id="close-expand-image-menu" style="color: black;">&times;</span>
+						        <br>
+				                {% if ".png" in Assignment['image_name'] or ".jpg" in Assignment['image_name'] or ".webp" in Assignment['image_name'] or ".jpeg" in Assignment['image_name'] or ".PNG" in Assignment['image_name'] or ".JPG" in Assignment['image_name'] or ".WEBP" in Assignment['image_name'] or ".JPEG" in Assignment['image_name'] or "APRO-Image" == Assignment['image_name']%}
+				        	        <div class="grid-container">
+				            	        {% if Assignment['image_raw'] == "" %}
+				            				<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="width: 90%; object-fit: cover;">
+				            			{% else %}
+				            				<img src="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" style="width: 90%; object-fit: cover;">
+				            				<br>
+				            				<form class="grid-container" action="/render-image" method="POST">
+				            					<input type="hidden" name="base64_encoding" value="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}">
+				            					<input type="hidden" name="assignment_id" value="{{ Assignment['id'] }}">
+				            					<button class="standard-button">Open in new tab &UpperRightArrow;</button>
+				            				</form>
+				            			{% endif %}
+				        	        </div>
+				                {% else %}
+				                	<a href="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" download="{{ Assignment['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+				                		<button class="standard-button" style="width: fit-content;">Download File</button>
+				                	</a>
+				                {% endif %}
+						    </div>
+						</div>
+				        {% if ".png" in Assignment['image_name'] or ".jpg" in Assignment['image_name'] or ".webp" in Assignment['image_name'] or ".jpeg" in Assignment['image_name'] or ".PNG" in Assignment['image_name'] or ".JPG" in Assignment['image_name'] or ".WEBP" in Assignment['image_name'] or ".JPEG" in Assignment['image_name'] or "APRO-Image" == Assignment['image_name']%}
+					        <div class="grid-container" id="expand-image">
+				    	        {% if Assignment['image_raw'] == "" %}
+				    				<img src="{{ url_for('static', filename='media/logo-mini.png') }}" style="width: 90%; object-fit: contain; border-radius: 20px;">
+				    			{% else %}
+				    				<img src="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" style="width: 90%; object-fit: contain; border-radius: 20px; height: 100px;">
+				    			{% endif %}
+					        </div>
+				        {% else %}
+				        	<a href="data:{{ getMIME( Assignment['image_raw'] ) }};base64,{{ Assignment['image_raw'] }}" download="{{ Assignment['image_name'] }}" style="width: 100%; display: flex; align-items: center; justify-content: center;">
+				        		<button class="standard-button" style="width: fit-content;">Download File</button>
+				        	</a>
+				        {% endif %}
+				        <script type="text/javascript">
+				        	modal_expand_image = document.querySelector("#modal-expand-image")
+				        	trigger_modal_expand_image = document.querySelector("#expand-image")
+				        	close_modal_expand_image = document.querySelector("#close-expand-image-menu")
+
+				        	trigger_modal_expand_image.addEventListener('click', ()=>{
+				        		modal_expand_image.style.display = "block"
+				        	})
+				        	close_modal_expand_image.addEventListener('click', ()=>{
+				        		modal_expand_image.style.display = "none"
+				        	})
+				        </script>
+					</div>
+					<div>
+						<p>&nbsp;</p>
+						<p>&nbsp;</p>
+					</div>
+					<div class="assignment-thread-content">
+						<h3>{{ Assignment['name'] }}</h3>
+						<p>{{ Assignment['level'] }} • {{ Assignment['subject'] }} • {{ Assignment['visibility'] }} </p>
+						{% if DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['first_name'] == CUser['first_name'] %}
+							<span style="color: gray;"><a href="/dashboard/3">You</a> • {{ DTK.clean_date(Assignment['datestamp']) }}</span>
+						{% else %}
+							<span style="color: gray;"><a href="/profile/{{ Assignment['reg_number'] }}" {% if DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['tier'] == 'advanced' %} style="display: flex; align-items: center; flex-direction: row;" {% elif DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['tier'] == 'god' %} style="display: flex; align-items: center; flex-direction: row;" {% endif %} >{{ DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['first_name'] }} {{ DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['last_name'] }} {% if DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['tier'] == 'advanced' %} &nbsp;<img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 30px; width: 30px;"> {% elif DBORM('get_all', 'UserAPRO', 'reg_number', Assignment['reg_number'])['tier'] == 'god' %} &nbsp;<img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 20px; width: 20px;"> {% endif %}</a> • {{ DTK.clean_date(Assignment['datestamp']) }}</span>
+						{% endif %}
+						<p id="content-short-text-{{ Assignment['id'] }}">{{ ShortenText(Assignment['description'], 5) }}...<span class="colored-text">See more</span> </p>
+						<p id="content-long-text-{{ Assignment['id'] }}" style="display: none;">{{ Assignment['description'] }} <span class="colored-text">See less</span> </p>
+						<script type="text/javascript">
+							document.querySelector("#content-short-text-{{ Assignment['id'] }}").addEventListener('click', ()=>{
+								document.querySelector("#content-short-text-{{ Assignment['id'] }}").style.display = "none"
+								document.querySelector("#content-long-text-{{ Assignment['id'] }}").style.display = "block"
+							})
+							document.querySelector("#content-long-text-{{ Assignment['id'] }}").addEventListener('click', ()=>{
+								document.querySelector("#content-long-text-{{ Assignment['id'] }}").style.display = "none"
+								document.querySelector("#content-short-text-{{ Assignment['id'] }}").style.display = "block"
+							})
+						</script>
+					</div>
+					
+				</div>
+				{% if CUser['reg_number'] == Assignment['reg_number'] or Assignment['visibility'] == "Public" %}
+					<div class="new-solution grid-container">
+						<input type="hidden" name="user_id" id="user_id" value="{{ CUser['id'] }}">
+						<input type="file" name="image" style="display: none;" id="file-input">
+						<input type="hidden" name="assignment_id" id="assignment_id" value="{{ Assignment['id'] }}">
+						<p class="status-text" style="display: none;"></p>
+						<textarea name="content" style="height: 100px;" class="standard-input" id="content" placeholder="Your Solution content goes here..." required></textarea>
+						<div style="display: flex; align-items: center; flex-direction: row; width: 100%;">
+							<button class="standard-button" id="submit-solution-button" style="width: 80%; height: 50px; display: flex; align-items: center; justify-content: center;">Add Solution</button>
+							<button class="inverted-button" id="openFilePickerButton" style="width: 20%; height: 50px; display: flex; align-items: center; justify-content: center;">
+								<img src="{{ url_for('static', filename='media/icons/new.png') }}" style="height: 25px; width: 25px;">
+							</button>
+						</div>
+						
+					</div>
+				{% else %}
+					<br>
+					<br>
+					<br>
+					<div class="grid-container">
+						<p class="status-text" style="display: none;" align="center"></p>
+					</div>
+
+					<p align="center" style="color: grey;">You can't add solutions.</p>
+				{% endif %}
+				{% if Assignment['visibility'] == "Public" %}
+					<div class="grid-container">
+						<button class="inverted-button" id="share-question-link" style="height: 50px; display: flex; align-items: center; justify-content: center;">Share question</button>
+						<script type="text/javascript">
+							questionLink = "https://apro.vercel.app/assignment/thread/{{ Assignment['id'] }}"
+							function copyToClipboard(text) {
+								navigator.clipboard.writeText(text).then(
+								function() {
+									console.log(`Copied Link: '&#8358;{text}'`);
+								},
+								function(err) {
+									console.error(`Copied Link [Failed]: &#8358;{text}`, err);
+								}
+								);
+							}
+							document.querySelector("#share-question-link").addEventListener('click', ()=>{
+								copyToClipboard(questionLink)
+								document.querySelector("#share-question-link").innerHTML = "Copied Question Link"
+								setTimeout(()=>{
+									document.querySelector("#share-question-link").innerHTML = "Share question"
+								} , 4000)	
+							});
+						</script>
+					</div>
+				{% else %}
+					<div class="grid-container">
+						<p align="center" style="color: grey;">You can't share Private assignments</p>
+					</div>
+				{% endif %}
+				{% if Solutions %}
+					<br>
+					<br>
+					<br>
+					<br>
+					{% for Solution in Solutions %}
+						<div class="solution-thread">
+							<div class="solution-thread-image" style="display: grid; place-items: center; border-right: 2px solid #000000;">
+			              		<div style="display: flex; align-items: center; flex-direction: row;">
+			              			<img src="{{ url_for('static', filename='media/icons/myicon-check.png') }}" style="height: 40px; width: 40px;" onclick="submitReview('good')">
+			              			&nbsp;
+			              			&nbsp;
+			              			<span>{{ GetReviewCount(Solution['id'])[0] }} </span>
+			              		</div>
+			              		<br>
+			              		<div style="display: flex; align-items: center; flex-direction: row;">
+			              			<img src="{{ url_for('static', filename='media/icons/myicon-cross.png') }}" style="height: 40px; width: 40px;" onclick="submitReview('bad')">
+			              			&nbsp;
+			              			&nbsp;
+			              			<span>{{ GetReviewCount(Solution['id'])[1] }} </span>
+			              		</div>
+			              		<script type="text/javascript">
+			              			function submitReview (what) {
+			              				reviewFormData = new FormData()
+			              				reviewFormData.append('what', what)
+			              				reviewFormData.append('solution_id', "{{ Solution['id'] }}")
+			              				fetch('/add-review', {
+			              					method: 'POST',
+			              					body: reviewFormData
+			              				})
+			              				.then(response => response.text())
+										.then((data) => {
+											if (data == "Reviewed already"){
+												showStatusText("flex", "You've already given a review.", "warning")
+												setTimeout(()=>{
+													hideStatusText()
+												} , 3000)
+											} if (data == "Reviewed yourself"){
+												showStatusText("flex", "You can't review your own solution.", "warning")
+												setTimeout(()=>{
+													hideStatusText()
+												} , 3000)
+											} if (data == "Success") {
+												showStatusText("flex", "Review Added", "success")
+												setTimeout(()=>{
+													hideStatusText()
+													location.reload()
+												} , 3000)
+											}
+										})
+			              			}
+			              		</script>
+							</div>
+							<div>
+								<p>&nbsp;</p>
+								<p>&nbsp;</p>
+							</div>
+							<div onclick="goToRoute('/assignment/thread/{{ Assignment['id'] }}/solution/{{ Solution['id'] }}', ['GET', {}])" class="solution-thread-content">
+								<h3>{{ ShortenText(Solution['content'], 5) }}</h3>
+								{% if ".png" in Solution['image_name'] or ".jpg" in Solution['image_name'] or ".webp" in Solution['image_name'] or ".jpeg" in Solution['image_name'] or ".PNG" in Solution['image_name'] or ".JPG" in Solution['image_name'] or ".WEBP" in Solution['image_name'] or ".JPEG" in Solution['image_name'] or "blob" == Solution['image_name'] %}
+									<a><small>Media Attached</small></a>
+								{% elif "APRO-Image" == Solution['image_name'] %}
+									<a><small>Media Not Attached</small></a>
+								{% else %}
+									<a><small>Media Not Attached (Download available)</small></a>
+								{% endif %}
+								<br>
+								{% if DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['first_name'] != CUser['first_name'] %}
+									<a href="/profile/{{ Solution['provider'] }}"  {% if DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['tier'] == 'advanced' %} style="display: flex; align-items: center; flex-direction: row;" {% elif DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['tier'] == 'god' %} style="display: flex; align-items: center; flex-direction: row;" {% endif %}>{{ DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['first_name'] }} {{ DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['last_name'] }}  {% if DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['tier'] == 'advanced' %}&nbsp;<img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 30px; width: 30px;"> {% elif DBORM('get_all', 'UserAPRO', 'reg_number', Solution['provider'])['tier'] == 'god' %} &nbsp;<img src="{{ url_for('static', filename='media/icons/icons8-verified-account-50.png') }}" style="height: 30px; width: 30px;"> {% endif %}</a>
+								{% else %}
+									<a href="/dashboard/3">You</a>
+								{% endif %}
+								•&nbsp;<span style="color: gray;">{{ DTK.clean_date(Solution['datestamp']) }}</span>
+							</div>
+							
+						</div>
+					{% endfor %}
+				{% else %}
+					<br>
+					<br>
+					<br>
+					<br>
+					{% if Assignment['visibility'] == "Public" %}
+						<p align="center" style="color: grey;">No one have added any solutions.</p>
+					{% else %}
+						<p align="center" style="color: grey;">You have'nt added any solutions yet.</p>
+					{% endif %}
+					<br>
+				{% endif %}
+
+			</div>
+		{% endif %}
+
+	{% else %}
+		<style type="text/css">
+			#view-assignment-screen{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				height: 100vh;
+			}
+		</style>
+		<p align="center">Nothing here!</p>
+	{% endif %}
+
+<script type="text/javascript">
+	try {
+		const openFilePickerButton = document.querySelector("#openFilePickerButton")
+			const fileInput = document.querySelector("#file-input")
+			let fileBuffer = null
+			const submitButton = document.querySelector("#submit-solution-button")
+			const userID = document.querySelector("#user_id")
+			const assignmentID = document.querySelector("#assignment_id")
+			const solution_content = document.querySelector("#content")
+
+			openFilePickerButton.addEventListener('click', (e)=>{
+				fileInput.click()
+			})
+			fileInput.addEventListener('change', (e)=>{
+				const file = e.target.files[0];
+				const reader = new FileReader()
+
+				reader.onload = (event) => {
+					fileBuffer = event.target.result
+				}
+
+				reader.readAsArrayBuffer(file)
+			})
+
+			submitButton.addEventListener('click', ()=>{
+				try{
+					if (fileBuffer !== null) {
+						if (solution_content.value == "") {
+							showStatusText("flex", "Solution content can't be empty.", "error")
+							setTimeout(()=>{
+								hideStatusText()
+							} , 3000)
+						} else{	
+							const formData = new FormData()
+							formData.append('image', new Blob([fileBuffer], { type: fileInput.files[0].type }))
+							formData.append('user_id', userID.value)
+							formData.append('assignment_id', assignmentID.value)
+							formData.append('content', solution_content.value)
+
+							fetch('/add-solution', {
+								method: 'POST',
+								body: formData
+							})
+							showStatusText("flex", "Added Solution", "success")
+							setTimeout(()=>{
+								hideStatusText()
+								location.reload()
+							} , 3000)
+						}
+					} else {
+						if (solution_content.value == "") {
+							showStatusText("flex", "Solution content can't be empty.", "error")
+							setTimeout(()=>{
+								hideStatusText()
+							} , 3000)
+						} else{	
+							const formData = new FormData()
+							formData.append('image', 'null')
+							formData.append('user_id', userID.value)
+							formData.append('assignment_id', assignmentID.value)
+							formData.append('content', solution_content.value)
+
+							fetch('/add-solution', {
+								method: 'POST',
+								body: formData
+							})
+							showStatusText("flex", "Added Solution", "success")
+							setTimeout(()=>{
+								hideStatusText()
+								location.reload()
+							} , 3000)
+						}
+					}
+					
+					// window.reload()
+				} catch(e) {
+					showStatusText("flex", "Please attach an image", "error")
+					setTimeout(()=>{
+						hideStatusText()
+					} , 3000)
+				}
+			})
+	} catch(e) {
+		// statements
+		console.log("Assignment is private\n" + e);
+	}
+</script>
+</body>
+</html>

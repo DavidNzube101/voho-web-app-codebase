@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-mini.png') }}">
+	<title>Login | Voho</title>
+	<style type="text/css">
+		body{
+			display: flex;
+			font-family: "Segoe UI";
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+		}
+		.board{
+			background: white;
+			height: fit-content;
+			/*display: grid;
+			place-items: center;*/
+			width: 96%;
+			border-radius: 20px;
+		}
+		form input{
+			background: #e6e6e6;
+			padding: 20px;
+			border-radius: 10px;
+			outline: none;
+			border: 0;
+			margin: 10px;
+			width: 80%;
+		}
+		form button{
+			width: 80%;
+			margin: 10px;
+			outline: none;
+			border: 0;
+			background: #000000;
+			color: white;
+			font-weight: 700;
+			padding: 20px;
+			border-radius: 10px;
+		}
+		.status-text{
+			width: 80%;
+			border-radius: 10px;
+			color: red;
+			background: #ff00002e;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+
+		}
+		a{
+			color: #00cc17;
+			text-decoration: none;
+		}
+	</style>
+</head>
+<body bgcolor="#000000">
+	<div class="board">
+		<form id="login-form" action="/login" method="POST">
+			<style type="text/css">
+				@keyframes fillBar{
+					{% for num in num_list %}
+						{{ num }}%{
+							width: {{ num }}%;
+						}
+					{% endfor %}
+				}
+				.container-loader{
+					position: relative;
+				}
+				.container-content{
+					opacity: 0.4;
+				}
+				.loader-asset{
+					display: flex; 
+					align-items: center; 
+					flex-direction: column;
+					width: 90%; 
+					font-weight: bolder; 
+					position: absolute; 
+					top: 50%; 
+					left: 50%; 
+					transform: translate(-50%, -50%);
+				}
+				.loader-bar-container{
+					height: 7px;
+					border-radius: 10pc;
+					overflow-x: auto;
+					overflow-y: hidden;
+					width: 60%;
+					background: #b2b2b2;
+				}
+				.loader-bar-substance{
+					height: 7px;
+					border-radius: 10pc;
+					width: 10%;
+					background: #000000;
+					animation: fillBar 2s infinite linear;
+				}
+
+			</style>
+
+			<div class="container-loader">
+				<div class="container-content" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+					
+					<div style="width: 100%; display: grid; place-items: center;">
+						<img src="{{ url_for('static', filename='media/icons/defAccount.png') }}" style="height: 110px; width: 110px; margin-top: 50px;">
+					</div>
+					<br>
+					{% if status[0] != '' %}
+						<p class="status-text">{{ status[0] }}</p>
+					{% else %}
+						<p class="status-text" style="display: none;">{{ status[0] }}</p>
+					{% endif %}
+					<input type="email" name="email" placeholder="Your Email or Reg Number" autocomplete="true" required>
+
+					<input type="password" name="password" placeholder="Your Password" autocomplete="true" required>
+					<button type="button" onclick="submitForm('login-form', 4000)">Login</button>
+					<p>or <a href="/signup">signup</a> if you don't have an account.</p>
+
+				</div>
+
+				<div class="loader-asset">
+					<img src="{{ url_for('static', filename='media/logo-medium.png') }}">
+					<div class="loader-bar-container">
+						<div class="loader-bar-substance"></div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
+<script src="{{ url_for('static', filename='js/WRLDLoader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/WRLDForm.js') }}"></script>
+</body>
+</html>
